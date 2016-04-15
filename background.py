@@ -53,7 +53,7 @@ class Level(object):
       self.para = pygame.font.SysFont(None, self.scalar/3)
       self.clock = pygame.time.Clock()
       self.old_clock = 0
-      self.update = 100
+      self.update = 50
       self.rotation = 0
       self.addition = 0
       if not self.block_height:
@@ -94,14 +94,16 @@ class Level(object):
    def water_effect(self, x, y):
       x = x * self.scalar
       y = y * self.scalar
-      #pygame.draw.rect(self.screen, WHITE, [x + randint(0, self.scalar), y + randint(0, self.scalar), self.scalar/10, self.scalar/10]) 
-      for line in range(2):
+      for line in range(3):
          deg = (self.rotation + 1) * 15
          line = line * self.scalar/5
+         colour = (5 * self.rotation + 105,) * 3
          if deg > 180:
-            pygame.draw.arc(self.screen, WHITE, [x , line + y, self.scalar, self.scalar/2], math.radians(deg -30), math.radians(deg), 1 ) 
+            pygame.draw.arc(self.screen, colour, [x , line + y, self.scalar, self.scalar/2], math.radians(deg -30), math.radians(deg), 1 ) 
+
          else:
-            pygame.draw.arc(self.screen, WHITE, [x, line + y, self.scalar, self.scalar/2], math.radians(170 - deg), math.radians(210 - deg ), 1 ) 
+            pygame.draw.arc(self.screen, colour, [x, line + y, self.scalar, self.scalar/2], math.radians(170 - deg), math.radians(210 - deg ), 1 ) 
+         
    
    def slow_clock(self):
       time = pygame.time.get_ticks()
@@ -111,7 +113,6 @@ class Level(object):
          if self.rotation  > 23:
             self.rotation = 0
             self.addition +=1
-            print self.addition
          self.old_clock = time
       
          
