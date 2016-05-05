@@ -23,7 +23,7 @@ BROWN = (255, 128, 0)
 
 class Character(object):
 
-    def __init__(self, name, position=[0,0], screen=False, scalar=100, clock=False, verbose=True):
+    def __init__(self, name, position=[2,4], screen=False, scalar=100, clock=False, verbose=True):
         self.level_raw = str(name)
         self.verbose = verbose
         self.level = self.level_raw.replace(
@@ -38,6 +38,9 @@ class Character(object):
         self.rotation = 0
         self.addition = 0
         self.position = position
+        self.old_position = list(position)
+        self.moving = False
+        self.mv = [0, 0]
 
     def log(self, message):
         if self.verbose:
@@ -57,10 +60,27 @@ class Character(object):
        for func in pygame.gfxdraw.filled_circle, pygame.gfxdraw.aacircle:
           colour = BLACK if func == pygame.gfxdraw.aacircle else YELLOW
           func(self.screen, 
-               self.position[0] * self.scalar + self.scalar/2,
-               self.position[1] * self.scalar + self.scalar/2,
+               self.old_position[0] * self.scalar + self.mv[0] ,#+ self.scalar/2,
+               self.old_position[1] * self.scalar + self.mv[1] ,#+ self.scalar/2,
                self.scalar/2,
-               colour) 
+               colour)
+
+    def check_movement(self):
+       if (self.scalar * self.old_position[0]) + self.mv[0] < self.scalar * self.position[0]:
+          self.mv[0] += 1
+       if (self.scalar * self.old_position[0]) + self.mv[0] > self.scalar * self.position[0]:
+          self.mv[0] -= 1
+       if (self.scalar * self.old_position[0]) + self.mv[0] == self.scalar * self.position[0]:
+          self.old_position[0] = int(self.position[0])
+          self.mv[0] = 0
+       if (self.scalar * self.old_position[1]) + self.mv[1] < self.scalar * self.position[1]:
+          self.mv[1] += 1
+       if (self.scalar * self.old_position[1]) + self.mv[1] > self.scalar * self.position[1]:
+          self.mv[1] -= 1
+       if (self.scalar * self.old_position[1]) + self.mv[1] == self.scalar * self.position[1]:
+          self.old_position[1] = int(self.position[1])
+          self.mv[1] = 1
+
     def move_character(self, events):
        for event in events:
           if event.type == pygame.KEYDOWN:
@@ -76,16 +96,18 @@ class Character(object):
              if event.key == pygame.K_DOWN:
                 self.log("Going down")
                 self.position[1] += 1
-      
 
     def loop(self):
         while not game_exit:
             self.screen.fill(BLACK)
+            self.check_movement()
             self.draw_character()
             pygame.display.update()
             self.slow_clock()
             self.move_character(pygame.event.get())
-            print self.position
+            print "old postition: ", self.old_position
+            print "new positition: ", self.position
+            print "mv : ", self.mv
 
 if __name__ == '__main__':
     my_character = Character("dave", verbose=False)
