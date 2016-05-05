@@ -24,10 +24,8 @@ BROWN = (255, 128, 0)
 class Character(object):
 
     def __init__(self, name, position=[2,4], screen=False, scalar=100, clock=False, verbose=True):
-        self.level_raw = str(name)
+        self.name = str(name)
         self.verbose = verbose
-        self.level = self.level_raw.replace(
-            "\n", "").replace("[", "").replace("]", "")
         self.scalar = scalar
         self.log("Initializing character")
         self.screen = pygame.display.set_mode(
@@ -41,10 +39,11 @@ class Character(object):
         self.old_position = list(position)
         self.moving = False
         self.mv = [0, 0]
+        self.facing = "down"
 
     def log(self, message):
         if self.verbose:
-            pprint(message)
+            pprint(self.name + " : " + message)
 
     def slow_clock(self):
         time = pygame.time.get_ticks()
@@ -57,29 +56,57 @@ class Character(object):
             self.old_clock = time
 
     def draw_character(self):
+       x = self.old_position[0] * self.scalar + self.mv[0] + self.scalar/2
+       y = self.old_position[1] * self.scalar + self.mv[1] + self.scalar/2
+       size = self.scalar/2
        for func in pygame.gfxdraw.filled_circle, pygame.gfxdraw.aacircle:
           colour = BLACK if func == pygame.gfxdraw.aacircle else YELLOW
           func(self.screen, 
-               self.old_position[0] * self.scalar + self.mv[0] ,#+ self.scalar/2,
-               self.old_position[1] * self.scalar + self.mv[1] ,#+ self.scalar/2,
-               self.scalar/2,
+               x,
+               y,
+               size,
                colour)
+       if self.facing == "down":
+          pygame.gfxdraw.aatrigon(self.screen,
+                 x + size, y,
+                 x , y + size,
+                 x - size, y,
+                 RED)
+       elif self.facing == "up":   
+          pygame.gfxdraw.aatrigon(self.screen,
+                 x + size, y,
+                 x , y - size,
+                 x - size, y,
+                 RED)
+       elif self.facing == "left":   
+          pygame.gfxdraw.aatrigon(self.screen,
+                 x, y + size,
+                 x - size, y ,
+                 x , y - size,
+                 RED)
+       elif self.facing == "right":   
+          pygame.gfxdraw.aatrigon(self.screen,
+                 x, y + size,
+                 x + size, y ,
+                 x , y - size,
+                 RED)
 
     def check_movement(self):
+       subsquare = self.scalar / 8
        if (self.scalar * self.old_position[0]) + self.mv[0] < self.scalar * self.position[0]:
-          self.mv[0] += 1
+          self.mv[0] += subsquare
        if (self.scalar * self.old_position[0]) + self.mv[0] > self.scalar * self.position[0]:
-          self.mv[0] -= 1
+          self.mv[0] -= subsquare
        if (self.scalar * self.old_position[0]) + self.mv[0] == self.scalar * self.position[0]:
           self.old_position[0] = int(self.position[0])
-          self.mv[0] = 0
+          self.mv[0] = subsquare
        if (self.scalar * self.old_position[1]) + self.mv[1] < self.scalar * self.position[1]:
-          self.mv[1] += 1
+          self.mv[1] += subsquare
        if (self.scalar * self.old_position[1]) + self.mv[1] > self.scalar * self.position[1]:
-          self.mv[1] -= 1
+          self.mv[1] -= subsquare
        if (self.scalar * self.old_position[1]) + self.mv[1] == self.scalar * self.position[1]:
           self.old_position[1] = int(self.position[1])
-          self.mv[1] = 1
+          self.mv[1] = subsquare
 
     def move_character(self, events):
        for event in events:
@@ -87,15 +114,19 @@ class Character(object):
              if event.key == pygame.K_LEFT:
                 self.log("Going left")
                 self.position[0] -= 1
+                self.facing = "left"
              if event.key == pygame.K_RIGHT:
                 self.log("Going right")
                 self.position[0] += 1
+                self.facing = "right"
              if event.key == pygame.K_UP:
                 self.log("Going up")
                 self.position[1] -= 1
+                self.facing = "up"
              if event.key == pygame.K_DOWN:
                 self.log("Going down")
                 self.position[1] += 1
+                self.facing = "down"
 
     def loop(self):
         while not game_exit:
