@@ -64,11 +64,12 @@ class Game(object):
             events = pygame.event.get()
             self.levels[self.current_level].draw_level()
             self.main_character.move_character(events)
+            self.main_character.check_movement()
             self.main_character.draw_character() 
             self.levels[self.current_level].draw_foreground()
             pygame.display.update()
             self.levels[self.current_level].slow_clock()
-            self.clock.tick(100)
+            self.clock.tick(60)
             count += 1
             if count > 100:
                 self.current_level = '1' if self.current_level == '3' else str(

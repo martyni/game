@@ -40,6 +40,8 @@ class Character(object):
         self.moving = False
         self.mv = [0, 0]
         self.facing = "down"
+        self.vertical = False
+        self.horizontal = False
 
     def log(self, message):
         if self.verbose:
@@ -92,21 +94,30 @@ class Character(object):
                  RED)
 
     def check_movement(self):
-       subsquare = self.scalar / 8
+       step = self.scalar / 25
        if (self.scalar * self.old_position[0]) + self.mv[0] < self.scalar * self.position[0]:
-          self.mv[0] += subsquare
+          self.mv[0] += step
        if (self.scalar * self.old_position[0]) + self.mv[0] > self.scalar * self.position[0]:
-          self.mv[0] -= subsquare
+          self.mv[0] -= step
        if (self.scalar * self.old_position[0]) + self.mv[0] == self.scalar * self.position[0]:
           self.old_position[0] = int(self.position[0])
-          self.mv[0] = subsquare
+          self.mv[0] = 0
+          if self.horizontal == "left":
+             self.position[0] -=1
+          elif self.horizontal == "right":
+             self.position[0] +=1
+
        if (self.scalar * self.old_position[1]) + self.mv[1] < self.scalar * self.position[1]:
-          self.mv[1] += subsquare
+          self.mv[1] += step
        if (self.scalar * self.old_position[1]) + self.mv[1] > self.scalar * self.position[1]:
-          self.mv[1] -= subsquare
+          self.mv[1] -= step
        if (self.scalar * self.old_position[1]) + self.mv[1] == self.scalar * self.position[1]:
           self.old_position[1] = int(self.position[1])
-          self.mv[1] = subsquare
+          self.mv[1] = 0
+          if self.vertical == "up":
+             self.position[1] -=1
+          elif self.vertical == "down":   
+             self.position[1] +=1
 
     def move_character(self, events):
        for event in events:
@@ -115,18 +126,36 @@ class Character(object):
                 self.log("Going left")
                 self.position[0] -= 1
                 self.facing = "left"
+                self.horizontal = "left"
              if event.key == pygame.K_RIGHT:
                 self.log("Going right")
                 self.position[0] += 1
                 self.facing = "right"
+                self.horizontal = "right"
              if event.key == pygame.K_UP:
                 self.log("Going up")
                 self.position[1] -= 1
                 self.facing = "up"
+                self.vertical = "up"
              if event.key == pygame.K_DOWN:
                 self.log("Going down")
                 self.position[1] += 1
                 self.facing = "down"
+                self.vertical ="down"
+          if event.type == pygame.KEYUP:
+             if event.key == pygame.K_LEFT:
+                self.log("Stop going left")
+                self.horizontal = "stop" 
+             if event.key == pygame.K_RIGHT:
+                self.log("Stop going right")
+                self.horizontal = "stop"
+             if event.key == pygame.K_UP:
+                self.log("Stop going up")
+                self.vertical = "stop"
+             if event.key == pygame.K_DOWN:
+                self.log("Stop going down")
+                self.vertical = "stop"
+   
 
     def loop(self):
         while not game_exit:
@@ -136,10 +165,8 @@ class Character(object):
             pygame.display.update()
             self.slow_clock()
             self.move_character(pygame.event.get())
-            print "old postition: ", self.old_position
-            print "new positition: ", self.position
-            print "mv : ", self.mv
+            self.clock.tick(100)
 
 if __name__ == '__main__':
-    my_character = Character("dave", verbose=False)
+    my_character = Character("dave", verbose=True)
     my_character.loop()
