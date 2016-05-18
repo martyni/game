@@ -209,6 +209,7 @@ class Level(object):
            ),
             3, 
            path_colour)
+
     def draw_biom(self, x, y):
         x_scaled = x * self.scalar
         y_scaled = y * self.scalar
@@ -278,7 +279,6 @@ class Level(object):
         self.information_to_screen('saved')
         pygame.display.update()
         self.saved_level = True
-        print "saved"
 
     def draw_level(self,  save=False):
         x = 0

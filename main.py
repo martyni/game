@@ -24,7 +24,7 @@ class Game(object):
         self.verbose = verbose
         self.width = 0
         self.height = 0
-        self.scalar = 100
+        self.scalar = 70
         self.screen = None
         
 
@@ -63,6 +63,8 @@ class Game(object):
         while not self.game_exit:
             events = pygame.event.get()
             self.levels[self.current_level].draw_level()
+            self.main_character.blocks = self.levels[self.current_level].blocks
+            self.main_character.water_blocks = self.levels[self.current_level].water_blocks
             self.main_character.move_character(events)
             self.main_character.check_movement()
             self.main_character.draw_character() 

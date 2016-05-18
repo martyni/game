@@ -18,12 +18,17 @@ BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 DARK_YELLOW = (128, 128, 0)
 BROWN = (255, 128, 0)
-
+CONTROLS = {
+   "left": pygame.K_LEFT,
+   "right": pygame.K_RIGHT,
+   "up": pygame.K_UP,
+   "down": pygame.K_DOWN,
+}
 
 
 class Character(object):
 
-    def __init__(self, name, position=[2,4], screen=False, scalar=100, clock=False, verbose=True):
+    def __init__(self, name, position=[2,4], screen=False, scalar=100, clock=False, verbose=True, blocks=set(), water_blocks=set()):
         self.name = str(name)
         self.verbose = verbose
         self.scalar = scalar
@@ -42,6 +47,10 @@ class Character(object):
         self.facing = "down"
         self.vertical = False
         self.horizontal = False
+        self.blocks = blocks
+        self.water_blocks = water_blocks
+        self.can_swim = False
+        self.blocks.add((0,0))
 
     def log(self, message):
         if self.verbose:
@@ -95,6 +104,12 @@ class Character(object):
 
     def check_movement(self):
        step = self.scalar / 25
+       if tuple(self.position) in self.blocks:
+          self.position = list(self.old_position)
+          return None
+       if tuple(self.position) in self.water_blocks and not self.can_swim:
+          self.position = list(self.old_position)
+          return None 
        if (self.scalar * self.old_position[0]) + self.mv[0] < self.scalar * self.position[0]:
           self.mv[0] += step
        if (self.scalar * self.old_position[0]) + self.mv[0] > self.scalar * self.position[0]:
@@ -104,8 +119,10 @@ class Character(object):
           self.mv[0] = 0
           if self.horizontal == "left":
              self.position[0] -=1
+             self.facing = "left"
           elif self.horizontal == "right":
              self.position[0] +=1
+             self.facing = "right"
 
        if (self.scalar * self.old_position[1]) + self.mv[1] < self.scalar * self.position[1]:
           self.mv[1] += step
@@ -116,45 +133,49 @@ class Character(object):
           self.mv[1] = 0
           if self.vertical == "up":
              self.position[1] -=1
+             if not self.horizontal:
+                self.facing = "up"
           elif self.vertical == "down":   
              self.position[1] +=1
+             if not self.horizontal:
+                self.facing = "down"
 
     def move_character(self, events):
        for event in events:
           if event.type == pygame.KEYDOWN:
-             if event.key == pygame.K_LEFT:
+             if event.key == CONTROLS["left"]:
                 self.log("Going left")
                 self.position[0] -= 1
                 self.facing = "left"
                 self.horizontal = "left"
-             if event.key == pygame.K_RIGHT:
+             if event.key == CONTROLS["right"]:
                 self.log("Going right")
                 self.position[0] += 1
                 self.facing = "right"
                 self.horizontal = "right"
-             if event.key == pygame.K_UP:
+             if event.key == CONTROLS["up"]:
                 self.log("Going up")
                 self.position[1] -= 1
                 self.facing = "up"
                 self.vertical = "up"
-             if event.key == pygame.K_DOWN:
+             if event.key == CONTROLS["down"]:
                 self.log("Going down")
                 self.position[1] += 1
                 self.facing = "down"
                 self.vertical ="down"
           if event.type == pygame.KEYUP:
-             if event.key == pygame.K_LEFT:
+             if event.key == CONTROLS["left"]:
                 self.log("Stop going left")
-                self.horizontal = "stop" 
-             if event.key == pygame.K_RIGHT:
+                self.horizontal = False 
+             if event.key == CONTROLS["right"]:
                 self.log("Stop going right")
-                self.horizontal = "stop"
-             if event.key == pygame.K_UP:
+                self.horizontal = False
+             if event.key == CONTROLS["up"]:
                 self.log("Stop going up")
-                self.vertical = "stop"
-             if event.key == pygame.K_DOWN:
+                self.vertical = False
+             if event.key == CONTROLS["down"]:
                 self.log("Stop going down")
-                self.vertical = "stop"
+                self.vertical = False
    
 
     def loop(self):

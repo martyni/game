@@ -56,7 +56,6 @@ class TestBackgroundMethods(unittest.TestCase):
    def test_house(self):
        '''Checks that a path gets correctly rendered'''
        current_level.draw_house(0, 0)
-       print current_level.screen.get_at((2,4))
        self.assertEqual(current_level.screen.get_at((2,4)), (255, 0, 0, 255))
        update_delay()
    
