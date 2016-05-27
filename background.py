@@ -197,28 +197,29 @@ class Level(object):
     def draw_grass(self, x, y, colour):
         points = []
         #wobble = self.scalar / 10 if self.rotation > 12 else 0
-        if self.rotation < 8:
-           wobble = self.scalar / 15
-        elif self.rotation < 16:
-           wobble = self.scalar / 10
+        if self.rotation < 6:
+           wobble =  self.scalar / 15
+        elif self.rotation < 12:
+           wobble = 0 
+        elif self.rotation < 18:
+           wobble = - self.scalar / 15
         else:
            wobble = 0
 
-        for point in range(0, 30, 10):
+        print wobble
+        for point in range(0, self.scalar / 4, self.scalar / 12):
             points.append((x + point, y))
-            points.append((x + point - self.scalar / 10,
-                           wobble + y - self.scalar / 10))
             points.append(
-                (x + wobble + point - self.scalar / 7, y - self.scalar / 5))
-            points.append(
-                (x + wobble + point - self.scalar / 5, y - self.scalar / 10))
-            points.append((x + point - self.scalar / 10, y))
+                (x + wobble + point, y - self.scalar / 5))
+            points.append((x + point - self.scalar / 12, y))
+        
         pygame.gfxdraw.filled_polygon(self.screen,
                                       points,
                                       colour)
         pygame.gfxdraw.aapolygon(self.screen,
                                  points,
                                  BLACK)
+        points = []
 
     def wavy_line(self, x, y, colour, wavyness):
         ran = colour[1]
@@ -355,6 +356,7 @@ class Level(object):
                 self.draw_house(x, y)
                 self.map[(x, y)] = "house"
             x += 1
+         
             if not x % self.block_width:
                 y += 1
                 x = 0
