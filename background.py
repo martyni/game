@@ -3,6 +3,7 @@ import numpy
 import math
 import random
 import time
+from multiprocessing import Process
 from pygame import gfxdraw
 from pprint import pprint
 from random import randint
@@ -66,7 +67,7 @@ class Level(object):
         self.rotation = 0
         self.addition = 0
         if not self.block_height:
-            raise Exception("Line openers '[':{opens} don't equal line closes '[':{closes}".format(
+            raise Exception("Line openers '[':{opens} don't equal line closes ']':{closes}".format(
                 opens=self.level.count("["),
                 closes=self.level.count("]")
             ))
@@ -83,24 +84,27 @@ class Level(object):
     def draw_path(self, x, y):
         pygame.draw.rect(self.screen, WHITE, [
                          x * self.scalar, y * self.scalar, self.scalar, self.scalar])
-        left_pixel = self.map.get((x -1, y), "off screen")
+        left_pixel = self.map.get((x - 1, y), "off screen")
         right_pixel = self.map.get((x + 1, y), "off screen")
-        top_pixel = self.map.get((x, y -1), "off screen")
+        top_pixel = self.map.get((x, y - 1), "off screen")
         bottom_pixel = self.map.get((x, y + 1), "off screen")
         indent = 7
-        if not left_pixel == "path" and left_pixel != "off screen" and left_pixel !="house":
-           pygame.gfxdraw.vline(self.screen, indent + x * self.scalar, y * self.scalar, (1 + y) * self.scalar, BLACK)
+        if not left_pixel == "path" and left_pixel != "off screen" and left_pixel != "house":
+            pygame.gfxdraw.vline(self.screen, indent + x * self.scalar,
+                                 y * self.scalar, (1 + y) * self.scalar, BLACK)
         if not right_pixel == "path" and right_pixel != "off screen":
-           pygame.gfxdraw.vline(self.screen,  (1 + x) * self.scalar - indent, y * self.scalar, (1 + y) * self.scalar, BLACK)
+            pygame.gfxdraw.vline(self.screen,  (1 + x) * self.scalar -
+                                 indent, y * self.scalar, (1 + y) * self.scalar, BLACK)
         if not top_pixel == "path" and top_pixel != "off screen":
-           pygame.gfxdraw.hline(self.screen, x * self.scalar, (x + 1) * self.scalar,  y * self.scalar + indent, BLACK)
+            pygame.gfxdraw.hline(self.screen, x * self.scalar, (x + 1)
+                                 * self.scalar,  y * self.scalar + indent, BLACK)
         if not bottom_pixel == "path" and bottom_pixel != "off screen":
-           pygame.gfxdraw.hline(self.screen, x * self.scalar, (x + 1) * self.scalar,  (y +1)  * self.scalar - indent, BLACK)
+            pygame.gfxdraw.hline(self.screen, x * self.scalar, (x + 1)
+                                 * self.scalar,  (y + 1) * self.scalar - indent, BLACK)
 
     def draw_water(self, x, y):
         pygame.draw.rect(self.screen, BLUE, [
                          x * self.scalar, y * self.scalar, self.scalar, self.scalar])
-           
 
         self.water_blocks.add((x, y))
         self.water_effect(x, y)
@@ -108,107 +112,129 @@ class Level(object):
     def draw_house(self, x, y):
         right_pixel = self.map.get((x + 1, y), "off screen")
         if right_pixel == "biom":
-           self.draw_biom(x, y)
+            self.draw_biom(x, y)
         elif right_pixel == "water":
-           self.draw_water(x, y)
+            self.draw_water(x, y)
         elif right_pixel == "path":
-           self.draw_path(x, y)
+            self.draw_path(x, y)
 
         self.blocks.add((x, y))
-        
-        def draw_roof():
-           for func in pygame.gfxdraw.filled_trigon,  pygame.gfxdraw.aatrigon:
-              colour = DARK_RED if func == pygame.gfxdraw.filled_trigon else BLACK
-              func(self.screen,
-                 (x +1) * self.scalar,
-                 y * self.scalar,
-                 (x + 1) * self.scalar - self.scalar/6,
-                 y * self.scalar + self.scalar/4,
-                 (x + 1) * self.scalar,
-                 y * self.scalar - self.scalar/2,
-                 colour)
-              colour = RED if func == pygame.gfxdraw.filled_trigon else BLACK
-           for func in  [pygame.gfxdraw.filled_polygon, pygame.gfxdraw.aapolygon]:
-              colour = RED if func == pygame.gfxdraw.filled_polygon else BLACK
-              func(self.screen,
-                  (
-                   ((x + 1) * self.scalar, y * self.scalar - self.scalar/2), 
-                   (x * self.scalar, y * self.scalar - self.scalar/2), 
-                   (x  * self.scalar - self.scalar/6, y * self.scalar + self.scalar/4),
-                   ((x +1)  * self.scalar - self.scalar/6, y * self.scalar + self.scalar/4),
-                  ),
-                  colour)
-        def draw_front():
-           for func in  [pygame.gfxdraw.filled_polygon, pygame.gfxdraw.aapolygon]:
-              colour = YELLOW if func == pygame.gfxdraw.filled_polygon else BLACK
-              func(self.screen,
-                  (
-                   (x  * self.scalar - self.scalar/6, y * self.scalar + self.scalar/4),
-                   ((x + 1)  * self.scalar - self.scalar/6, y * self.scalar + self.scalar/4),
-                   ((x + 1)  * self.scalar - self.scalar/6, (y + 1)  * self.scalar),
-                   (x  * self.scalar - self.scalar/6, (y + 1) * self.scalar),
-                   ),
-                   colour
-                  )
-              #door
-              colour = BROWN if func == pygame.gfxdraw.filled_polygon else BLACK
-              func(self.screen,
-                  (
-                   (x  * self.scalar + self.scalar/2, (y + 1) * self.scalar),
-                   (x  * self.scalar + self.scalar/3, (y + 1) * self.scalar),
-                   (x  * self.scalar + self.scalar/3, (y + 1) * self.scalar - self.scalar/3),
-                   (x  * self.scalar + self.scalar/2, (y + 1) * self.scalar - self.scalar/3),
-                   ),
-                   colour
-                  )
-        def draw_side():
-           for func in  [pygame.gfxdraw.filled_polygon, pygame.gfxdraw.aapolygon]:
-              colour = DARK_YELLOW if func == pygame.gfxdraw.filled_polygon else BLACK
-              func(self.screen,
-                  (
-                   ((x + 1)  * self.scalar - self.scalar/6, (y + 1)  * self.scalar),
-                   ((x + 1)  * self.scalar, (y + 1)  * self.scalar - self.scalar/4),
-                   ((x + 1)  * self.scalar, y   * self.scalar),
-                   ((x + 1)  * self.scalar - self.scalar/6, y   * self.scalar + self.scalar/4),
-                   ),
-                   colour
-                  )
 
+        def draw_roof():
+            for func in pygame.gfxdraw.filled_trigon,  pygame.gfxdraw.aatrigon:
+                colour = DARK_RED if func == pygame.gfxdraw.filled_trigon else BLACK
+                func(self.screen,
+                     (x + 1) * self.scalar,
+                     y * self.scalar,
+                     (x + 1) * self.scalar - self.scalar / 6,
+                     y * self.scalar + self.scalar / 4,
+                     (x + 1) * self.scalar,
+                     y * self.scalar - self.scalar / 2,
+                     colour)
+                colour = RED if func == pygame.gfxdraw.filled_trigon else BLACK
+            for func in [pygame.gfxdraw.filled_polygon, pygame.gfxdraw.aapolygon]:
+                colour = RED if func == pygame.gfxdraw.filled_polygon else BLACK
+                func(self.screen,
+                     (
+                         ((x + 1) * self.scalar, y * self.scalar - self.scalar / 2),
+                         (x * self.scalar, y * self.scalar - self.scalar / 2),
+                         (x * self.scalar - self.scalar / 6,
+                          y * self.scalar + self.scalar / 4),
+                         ((x + 1) * self.scalar - self.scalar /
+                          6, y * self.scalar + self.scalar / 4),
+                     ),
+                     colour)
+
+        def draw_front():
+            for func in [pygame.gfxdraw.filled_polygon, pygame.gfxdraw.aapolygon]:
+                colour = YELLOW if func == pygame.gfxdraw.filled_polygon else BLACK
+                func(self.screen,
+                     (
+                         (x * self.scalar - self.scalar / 6,
+                          y * self.scalar + self.scalar / 4),
+                         ((x + 1) * self.scalar - self.scalar /
+                          6, y * self.scalar + self.scalar / 4),
+                         ((x + 1) * self.scalar - self.scalar /
+                          6, (y + 1) * self.scalar),
+                         (x * self.scalar - self.scalar / 6, (y + 1) * self.scalar),
+                     ),
+                     colour
+                     )
+                # door
+                colour = BROWN if func == pygame.gfxdraw.filled_polygon else BLACK
+                func(self.screen,
+                     (
+                         (x * self.scalar + self.scalar / 2, (y + 1) * self.scalar),
+                         (x * self.scalar + self.scalar / 3, (y + 1) * self.scalar),
+                         (x * self.scalar + self.scalar / 3,
+                          (y + 1) * self.scalar - self.scalar / 3),
+                         (x * self.scalar + self.scalar / 2,
+                          (y + 1) * self.scalar - self.scalar / 3),
+                     ),
+                     colour
+                     )
+
+        def draw_side():
+            for func in [pygame.gfxdraw.filled_polygon, pygame.gfxdraw.aapolygon]:
+                colour = DARK_YELLOW if func == pygame.gfxdraw.filled_polygon else BLACK
+                func(self.screen,
+                     (
+                         ((x + 1) * self.scalar - self.scalar /
+                          6, (y + 1) * self.scalar),
+                         ((x + 1) * self.scalar, (y + 1)
+                          * self.scalar - self.scalar / 4),
+                         ((x + 1) * self.scalar, y * self.scalar),
+                         ((x + 1) * self.scalar - self.scalar /
+                          6, y * self.scalar + self.scalar / 4),
+                     ),
+                     colour
+                     )
 
         draw_front()
-        draw_roof()  
-        draw_side() 
+        draw_roof()
+        draw_side()
 
     def draw_grass(self, x, y, colour):
         points = []
-        wobble = self.scalar/10 if self.rotation > 12 else 0
-        for point in range(0, 20, self.scalar/10):
-           points.append((x + point, y))
-           points.append((x + point - self.scalar/10, wobble + y - self.scalar/10))
-           points.append((x + wobble + point - self.scalar/7, y - self.scalar/5))
-           points.append((x + wobble + point - self.scalar/5, y - self.scalar/10))
-           points.append((x + point - self.scalar/10, y))
-        points.append((x + point + 5, y))
+        #wobble = self.scalar / 10 if self.rotation > 12 else 0
+        if self.rotation < 8:
+           wobble = self.scalar / 15
+        elif self.rotation < 16:
+           wobble = self.scalar / 10
+        else:
+           wobble = 0
+
+        for point in range(0, 30, 10):
+            points.append((x + point, y))
+            points.append((x + point - self.scalar / 10,
+                           wobble + y - self.scalar / 10))
+            points.append(
+                (x + wobble + point - self.scalar / 7, y - self.scalar / 5))
+            points.append(
+                (x + wobble + point - self.scalar / 5, y - self.scalar / 10))
+            points.append((x + point - self.scalar / 10, y))
         pygame.gfxdraw.filled_polygon(self.screen,
-                              points,
-                              colour)
+                                      points,
+                                      colour)
         pygame.gfxdraw.aapolygon(self.screen,
-                              points, 
-                              BLACK)
+                                 points,
+                                 BLACK)
 
     def wavy_line(self, x, y, colour, wavyness):
         ran = colour[1]
         shake = wavyness if self.rotation > 12 else -wavyness
-        for line in range(10):
-           path_colour = numpy.add(colour , (line)*3)  
-           pygame.gfxdraw.bezier(self.screen, 
-           ((shake + line + x + self.scalar/2 + self.scalar/ran, y ),
-            (shake + line + x , y + self.scalar/4),
-            (shake + line + x + self.scalar, y + 3 * self.scalar/4),
-            (shake + line + x + self.scalar/2 + self.scalar/ran, y + self.scalar)
-           ),
-            3, 
-           path_colour)
+        for line in range(1):
+            path_colour = numpy.add(colour, (line) * 3)
+            pygame.gfxdraw.bezier(self.screen,
+                                  ((shake + line + x + self.scalar / 2 + self.scalar / ran, y),
+                                   (shake + line + x, y + self.scalar / 4),
+                                   (shake + line + x + self.scalar,
+                                    y + 3 * self.scalar / 4),
+                                      (shake + line + x + self.scalar / 2 +
+                                       self.scalar / ran, y + self.scalar)
+                                   ),
+                                  2,
+                                  path_colour)
 
     def draw_biom(self, x, y):
         x_scaled = x * self.scalar
@@ -219,11 +245,14 @@ class Level(object):
             grass_green = numpy.subtract(GREEN, (0, 100, 0))
             if seed % 3:
                 for stem in range(int(repr(seed2)[-3]) / 2):
-                    self.draw_grass(x_scaled + self.scalar/2 + self.scalar/3 * math.sin(stem *10),
-                                    y_scaled + self.scalar/2 + self.scalar/3 * math.cos(stem *10),
+                    self.draw_grass(x_scaled + self.scalar / 2 + self.scalar / 3 * math.sin(stem * 10),
+                                    y_scaled + self.scalar / 2 +
+                                    self.scalar / 3 * math.cos(stem * 10),
                                     grass_green)
-                    #pygame.draw.arc(self.screen, (0, 100, 0), [
-                    #                x_scaled - stem * 10 , y_scaled + 5 * math.sin(stem *10) , self.scalar * 2, self.scalar + stem], math.radians(0), math.radians(35), self.scalar /5)
+                    # pygame.draw.arc(self.screen, (0, 100, 0), [
+                    # x_scaled - stem * 10 , y_scaled + 5 * math.sin(stem *10)
+                    # , self.scalar * 2, self.scalar + stem], math.radians(0),
+                    # math.radians(35), self.scalar /5)
 
     def sudo_random(self, x, y, limit=None):
         if not limit:
@@ -245,24 +274,28 @@ class Level(object):
         x = x * self.scalar
         y = y * self.scalar
         seed = self.sudo_random(x, y, 3)
-        water_colour = numpy.subtract(BLUE, (100,0,0))
+        water_colour = numpy.subtract(BLUE, (100, 0, 0))
         for line in range(seed):
             deg = (self.rotation + 1) * 15
             line = line * self.scalar / 5
             if deg > 180:
-                colour = (deg/2, deg/2, 255)
+                '''
+                colour = (deg / 2, deg / 2, 255)
                 pygame.draw.arc(self.screen, colour, [
                                 x, line + y, self.scalar, self.scalar / 2], math.radians(deg - 30), math.radians(deg), self.scalar / 10)
                 pygame.draw.arc(self.screen, BLACK, [
                                 x, line + y, self.scalar, self.scalar / 2], math.radians(deg - 30), math.radians(deg), 1)
-                self.wavy_line(x, y, (100,220,220),4)
+                '''
+                self.wavy_line(x, y, (100, 220, 220), 4)
             else:
-                self.wavy_line(x, y, (100,220,220),4)
-                colour = (deg , deg,225) 
+                self.wavy_line(x, y, (100, 220, 220), 4)
+                '''
+                colour = (deg, deg, 225)
                 pygame.draw.arc(self.screen, colour, [x, line + y, self.scalar, self.scalar / 2], math.radians(
                     170 - deg), math.radians(210 - deg), self.scalar / 5)
                 pygame.draw.arc(self.screen, BLACK, [x, line + y, self.scalar, self.scalar / 2], math.radians(
-                   170 - deg), math.radians(210 - deg), 1)
+                    170 - deg), math.radians(210 - deg), 1)
+                '''
 
     def slow_clock(self):
         time = pygame.time.get_ticks()
@@ -288,16 +321,16 @@ class Level(object):
         for pixel in self.level:
             if pixel in {"-", "|"}:
                 self.draw_path(x, y)
-                self.map[(x,y)] = "path"
+                self.map[(x, y)] = "path"
             elif pixel == "~":
                 self.draw_water(x, y)
-                self.map[(x,y)] = "water"
+                self.map[(x, y)] = "water"
             elif pixel == "h":
                 self.draw_house(x, y)
-                self.map[(x,y)] = "house"
+                self.map[(x, y)] = "house"
             else:
                 self.draw_biom(x, y)
-                self.map[(x,y)] = "biom"
+                self.map[(x, y)] = "biom"
             x += 1
             if not x % self.block_width:
                 y += 1
@@ -315,24 +348,23 @@ class Level(object):
             self.save_level()
 
     def draw_foreground(self):
-       x = 0
-       y = 0
-       for pixel in self.level:
+        x = 0
+        y = 0
+        for pixel in self.level:
             if pixel == "h":
                 self.draw_house(x, y)
-                self.map[(x,y)] = "house"
+                self.map[(x, y)] = "house"
             x += 1
             if not x % self.block_width:
                 y += 1
                 x = 0
-
 
     def loop(self):
         while not game_exit:
             self.draw_level(save=True)
             pygame.display.update()
             self.slow_clock()
-            #self.clock.tick(1)
+            # self.clock.tick(1)
 
 if __name__ == '__main__':
     my_level = Level(level, verbose=False)
