@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import pygame
 from background import Level
 from character import Character
@@ -5,13 +6,17 @@ import os
 import re
 from pprint import pprint
 
-
+python_version=2.7
+package_version=0.1
 pygame.init()
+path = "/usr/lib/python{python_version}/site-packages/adventure-{package_version}-py{python_version}.egg/adventure/assets/levels/".format(
+        python_version=python_version, 
+        package_version=package_version)
 
-
+print path
 class Game(object):
 
-    def __init__(self, verbose=False, path='assets/levels/'):
+    def __init__(self, verbose=False, path=path):
         self.levels = {}
         self.path = path
         self.game = pygame.init()
