@@ -7,7 +7,7 @@ import re
 from pprint import pprint
 
 pygame.init()
-path = "adventure/assets/levels/"
+path = "rustyvale/assets/levels/"
 
 class Game(object):
 

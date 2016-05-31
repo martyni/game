@@ -1,6 +1,6 @@
 import random
-from background import Level
-terrain = {" ":10, "~":10}
+from rustyvale.background import Level
+terrain = {" ":20,"-":1, "~":10, "h":1}
 
 edges = "[","]"
 
@@ -18,12 +18,13 @@ def random_level(size):
          pixel = random.choice(choice_str)
          line += pixel
          old_x = pixel
-         print updated_terrain
+      
       line += "]\n"
       lines.append(line)
       old_line = line
+      print line,
    return  ''.join(lines)
 
 if __name__ == "__main__":
-   my_l = Level(random_level(10), verbose=False)
+   my_l = Level('random level',random_level(10), verbose=False)
    my_l.loop()
