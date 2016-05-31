@@ -199,20 +199,20 @@ class Level(object):
         points = []
         #wobble = self.scalar / 10 if self.rotation > 12 else 0
         if self.rotation < 6:
-           wobble =  self.scalar / 15
+            wobble = self.scalar / 15
         elif self.rotation < 12:
-           wobble = 0 
+            wobble = 0
         elif self.rotation < 18:
-           wobble = - self.scalar / 15
+            wobble = - self.scalar / 15
         else:
-           wobble = 0
+            wobble = 0
 
         for point in range(0, self.scalar / 4, self.scalar / 12):
             points.append((x + point, y))
             points.append(
                 (x + wobble + point, y - self.scalar / 5))
             points.append((x + point - self.scalar / 12, y))
-        
+
         pygame.gfxdraw.filled_polygon(self.screen,
                                       points,
                                       colour)
@@ -356,7 +356,7 @@ class Level(object):
                 self.draw_house(x, y)
                 self.map[(x, y)] = "house"
             x += 1
-         
+
             if not x % self.block_width:
                 y += 1
                 x = 0
