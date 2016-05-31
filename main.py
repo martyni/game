@@ -24,7 +24,7 @@ class Game(object):
         self.verbose = verbose
         self.width = 0
         self.height = 0
-        self.scalar = 50
+        self.scalar = 140
         self.screen = None
         
 
@@ -37,7 +37,7 @@ class Game(object):
                     level_name = match.group(1)
                     file_name = path + match.group(0)
                     with open(file_name, "r") as level_content:
-                        self.levels[level_name] = Level(level_content.read(
+                        self.levels[level_name] = Level(level_name, level_content.read(
                         ), clock=self.clock, scalar=self.scalar, verbose=self.verbose)
                         self.width = self.levels[level_name].block_width * self.scalar if self.levels[
                             level_name].block_width * self.scalar > self.width else self.width

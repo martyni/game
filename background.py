@@ -38,7 +38,8 @@ level = '''
 
 class Level(object):
 
-    def __init__(self, level, screen=False, scalar=100, clock=False, biom="grass", verbose=True):
+    def __init__(self, name, level, screen=False, scalar=100, clock=False, biom="grass", verbose=True):
+        self.name = name
         self.level_raw = level
         self.verbose = verbose
         self.level = self.level_raw.replace(
@@ -206,7 +207,6 @@ class Level(object):
         else:
            wobble = 0
 
-        print wobble
         for point in range(0, self.scalar / 4, self.scalar / 12):
             points.append((x + point, y))
             points.append(
@@ -257,9 +257,9 @@ class Level(object):
 
     def sudo_random(self, x, y, limit=None):
         if not limit:
-            return hash((x, y))
+            return hash((x, y, self.name))
         elif hash((x, y)) > limit:
-            return int(limit * float(repr(hash((x, y)))[-3]) / 10) + 1
+            return int(limit * float(repr(hash((x, y, self.name)))[-3]) / 10) + 1
 
     def message_to_screen(self, message, x, y):
         screen_text = self.para.render(message, True, BLACK)
@@ -369,5 +369,5 @@ class Level(object):
             # self.clock.tick(1)
 
 if __name__ == '__main__':
-    my_level = Level(level, verbose=False)
+    my_level = Level('a level', level, verbose=False)
     my_level.loop()

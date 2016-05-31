@@ -103,7 +103,7 @@ class Character(object):
                                     RED)
 
     def check_movement(self):
-        step = self.scalar / 5
+        step = self.scalar / 25
         if tuple(self.position) in self.blocks:
             self.position = list(self.old_position)
             return None

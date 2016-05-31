@@ -17,7 +17,7 @@ level = '''
 [~~~~~~~~~~~~]
 [            ]
 '''
-current_level = Level(level, verbose=False)
+current_level = Level('level',level, verbose=False)
 block_size = current_level.scalar
 
 def update_delay():
@@ -26,7 +26,7 @@ def update_delay():
 
 class TestBackgroundMethods(unittest.TestCase): 
    def make_level(self, level):
-       return Level(level, verbose=False)
+       return Level('level',level, verbose=False)
 
    def test_background_draws(self):
        '''Checks that background exports correct image compared to previously rendered image'''
