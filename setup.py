@@ -8,4 +8,10 @@ setup(name='adventure',
       author_email='martynjamespratt@gmail.com',
       license='MIT',
       packages=['adventure'],
-      zip_safe=False)
+      zip_safe=False,
+      entry_points = {
+         'console_scripts': ['adventure=adventure.main:main'],
+      },
+      include_package_data=True
+      )
+      
