@@ -114,7 +114,7 @@ class TestBackgroundMethods(unittest.TestCase):
 class TestMain(unittest.TestCase):
 
     def test_load_game(self):
-        game = Game(path='test_assets/')
+        game = Game(path='test_assets/assets/levels/')
         self.assertTrue(game)
         game.load_levels()
         last_level = 0
