@@ -115,7 +115,9 @@ class Game(object):
             if self.main_character.position[1] > self.levels[self.current_level].block_height - 1:
                 self.go_down()
 
+def main():
+   my_game = Game()
+   my_game.main_loop()
 
 if __name__ == "__main__":
-    my_game = Game()
-    my_game.main_loop()
+   main()
