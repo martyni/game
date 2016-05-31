@@ -9,7 +9,6 @@ from pprint import pprint
 pygame.init()
 path = "adventure/assets/levels/"
 
-print path
 class Game(object):
 
     def __init__(self, verbose=False, path=path):
