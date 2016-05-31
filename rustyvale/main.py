@@ -42,7 +42,7 @@ class Game(object):
                         self.height = self.levels[level_name].block_height * self.scalar if self.levels[
                             level_name].block_height * self.scalar > self.height else self.height
 
-        self.load_levels = True
+        self.levels_loaded = True
 
     def log(self, message):
         pprint(message) if self.verbose else None
