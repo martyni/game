@@ -1,12 +1,8 @@
 # Game
 demo pygame app
 
-# Installation
+# Installation and running
 
-git clone https://github.com/martyni/game
-
-cd game
-
-sudo python setup.py install
+pip install git+git://github.com/martyni/game
 
 rustyvale
