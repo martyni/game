@@ -13,22 +13,16 @@ pygame.init()
 print sys.argv
 print sys.platform
 if len(sys.argv) < 2:
-   print sys.argv
-   print sys.platform
-   if 'linux' in sys.platform:
-      python = "{major}.{minor}".format(major=sys.version_info[0], 
-                                        minor=sys.version_info[1])
-      path = "/usr/lib/python{python}/site-packages/rustyvale-{version}-py{python}.egg/rustyvale/"
-      path = path.format(python=python,
-                         version=version)
+   path = os.path.dirname(__file__)
 else:
    path = sys.argv[1]
-    
+print path
 
 class Game(object):
 
     def __init__(self, verbose=False, path=path):
         self.levels = {}
+        self.home = os.environ['HOME']
         self.path = path
         self.game = pygame.init()
         self.game_exit = False
@@ -44,7 +38,7 @@ class Game(object):
 
     def load_levels(self):
         print self.path
-        for path, directory, levels in os.walk(self.path + "assets/levels/"):
+        for path, directory, levels in os.walk(self.path + "/assets/levels/"):
             for level in levels:
                 match = re.match("(.*)\.lvl", level)
 
@@ -101,7 +95,7 @@ class Game(object):
         self.go_direction(1, -1, -1, 0, self.levels[
                           self.current_level].block_height - 1, self.levels[self.current_level].block_height - 1)
     def save_screen(self):
-        pygame.image.save(self.screen, 'current_screen.jpg')
+        pygame.image.save(self.screen, self.home + '/current_screen.jpg')
 
     def main_loop(self):
         if not self.levels_loaded:
