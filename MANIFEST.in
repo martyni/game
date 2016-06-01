@@ -1,1 +1,3 @@
 include rustyvale/assets/levels/*
+include rustyvale/assets/*
+

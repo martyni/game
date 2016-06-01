@@ -2,28 +2,25 @@
 import pygame
 import sys
 from background import Level
+from controls import Controls
 from character import Character
 import os
 import re
 from pprint import pprint
 
-version="0.2"
 pygame.init()
 
-print sys.argv
-print sys.platform
 if len(sys.argv) < 2:
-   path = os.path.dirname(__file__)
+   path = os.path.dirname(__file__) if os.path.dirname(__file__) else False
 else:
    path = sys.argv[1]
-print path
 
 class Game(object):
 
     def __init__(self, verbose=False, path=path):
         self.levels = {}
         self.home = os.environ['HOME']
-        self.path = path
+        self.path = path if path else os.environ['PWD']
         self.game = pygame.init()
         self.game_exit = False
         self.current_level = "0-0"
@@ -35,6 +32,7 @@ class Game(object):
         self.height = 0
         self.scalar = 70
         self.screen = None
+        self.controls = Controls(path=path)
 
     def load_levels(self):
         print self.path
@@ -103,7 +101,7 @@ class Game(object):
         if not self.main_character_loaded:
             self.load_characters()
         count = 0
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
 
         while not self.game_exit:
             events = pygame.event.get()
@@ -112,7 +110,7 @@ class Game(object):
             self.main_character.blocks = self.levels[self.current_level].blocks
             self.main_character.water_blocks = self.levels[
                 self.current_level].water_blocks
-            self.main_character.move_character(events)
+            self.controls.get_events(events, self.screen, self.levels[self.current_level], self.main_character)
             self.main_character.check_movement()
             self.main_character.draw_character()
             self.levels[self.current_level].draw_foreground()

@@ -53,6 +53,12 @@ class Character(object):
         self.can_swim = True
         self.blocks.add((0, 0))
         self.save = False
+        self.key_map = {
+           "left" : self.move_left,
+           "right" : self.move_right,
+           "up": self.move_up,
+           "down" : self.move_down
+        }
 
     def log(self, message):
         if self.verbose:
@@ -144,49 +150,38 @@ class Character(object):
                 self.position[1] += 1
                 if not self.horizontal:
                     self.facing = "down"
+
     def save_image(self):
         pygame.image.save(self.screen, 'current.jpg')
+   
+    def move_direction(self, direction_string, axis, direction):
+       self.log("Going {}".format(direction_string))
+       self.position[axis] += direction
+       self.facing = direction_string
+       if direction_string in {"up", "down"}:
+          self.vertical = direction_string
+       else:
+          self.horizontal = direction_string
 
-    def move_character(self, events):
-        for event in events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == CONTROLS["left"]:
-                    self.log("Going left")
-                    self.position[0] -= 1
-                    self.facing = "left"
-                    self.horizontal = "left"
-                if event.key == CONTROLS["right"]:
-                    self.log("Going right")
-                    self.position[0] += 1
-                    self.facing = "right"
-                    self.horizontal = "right"
-                if event.key == CONTROLS["up"]:
-                    self.log("Going up")
-                    self.position[1] -= 1
-                    self.facing = "up"
-                    self.vertical = "up"
-                if event.key == CONTROLS["down"]:
-                    self.log("Going down")
-                    self.position[1] += 1
-                    self.facing = "down"
-                    self.vertical = "down"
-                if event.key == CONTROLS["save"]:
-                    self.log("save")
-                    self.save = True
+    def stop_direction(self, direction_string):
+       self.log("Stop going {}".format(direction_string))
+       if direction_string in {"up", "down"}:
+          self.vertical = False
+       else:
+          self.horizontal = False
 
-            if event.type == pygame.KEYUP:
-                if event.key == CONTROLS["left"]:
-                    self.log("Stop going left")
-                    self.horizontal = False
-                if event.key == CONTROLS["right"]:
-                    self.log("Stop going right")
-                    self.horizontal = False
-                if event.key == CONTROLS["up"]:
-                    self.log("Stop going up")
-                    self.vertical = False
-                if event.key == CONTROLS["down"]:
-                    self.log("Stop going down")
-                    self.vertical = False
+    def move_left(self):
+       self.move_direction("left", 0, -1)
+    
+    def move_right(self):
+       self.move_direction("right", 0, 1)
+ 
+    def move_up(self):
+       self.move_direction("up", 1, -1)
+
+    def move_down(self):
+       self.move_direction("down", 1, 1)
+
 
     def loop(self):
         while not game_exit:
@@ -195,7 +190,7 @@ class Character(object):
             self.draw_character()
             pygame.display.update()
             self.slow_clock()
-            self.move_character(pygame.event.get())
+            #self.move_character(pygame.event.get())
             self.clock.tick(100)
 
 if __name__ == '__main__':

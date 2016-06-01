@@ -1,11 +1,11 @@
 import pygame
 import unittest
 from background import Level
-from main import Game
+from main import Game, path
 from time import sleep
 pygame.init()
-test_level = pygame.image.load('test_assets/background.jpg')
-random_image = pygame.image.load('test_assets/random.jpg')
+test_level = pygame.image.load(path + '/test_assets/background.jpg')
+random_image = pygame.image.load(path + '/test_assets/random.jpg')
 level = '''
 [       |||  ]
 [  h    |||  ]
@@ -112,7 +112,7 @@ class TestBackgroundMethods(unittest.TestCase):
 
 
 class TestMain(unittest.TestCase):
-    def make_game(self, path='test_assets/assets/levels/'):
+    def make_game(self, path=path + '/test_assets/'):
         return Game(path=path)
 
     def test_load_game(self):
@@ -126,6 +126,7 @@ class TestMain(unittest.TestCase):
             surface = pygame.display.get_surface()
             self.assertNotEqual(last_level, surface.get_view().raw)
             last_level = surface.get_view().raw
+    
    
 if __name__ == '__main__':
     unittest.main()
