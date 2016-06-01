@@ -1,7 +1,7 @@
 from setuptools import setup
-
+import rustyvale
 setup(name='rustyvale',
-      version='0.1',
+      version=rustyvale.version,
       description='basic adventure game',
       url='http://github.com/martyni/game',
       author='martyni',

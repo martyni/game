@@ -23,6 +23,7 @@ CONTROLS = {
     "right": pygame.K_RIGHT,
     "up": pygame.K_UP,
     "down": pygame.K_DOWN,
+    "save": pygame.K_s
 }
 
 
@@ -51,6 +52,7 @@ class Character(object):
         self.water_blocks = water_blocks
         self.can_swim = True
         self.blocks.add((0, 0))
+        self.save = False
 
     def log(self, message):
         if self.verbose:
@@ -101,6 +103,9 @@ class Character(object):
                                     x + size, y,
                                     x, y - size,
                                     RED)
+        if self.save:
+           self.save_image()
+           self.save = False
 
     def check_movement(self):
         step = self.scalar / 25
@@ -139,6 +144,8 @@ class Character(object):
                 self.position[1] += 1
                 if not self.horizontal:
                     self.facing = "down"
+    def save_image(self):
+        pygame.image.save(self.screen, 'current.jpg')
 
     def move_character(self, events):
         for event in events:
@@ -163,6 +170,10 @@ class Character(object):
                     self.position[1] += 1
                     self.facing = "down"
                     self.vertical = "down"
+                if event.key == CONTROLS["save"]:
+                    self.log("save")
+                    self.save = True
+
             if event.type == pygame.KEYUP:
                 if event.key == CONTROLS["left"]:
                     self.log("Stop going left")

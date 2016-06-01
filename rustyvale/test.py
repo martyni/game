@@ -112,9 +112,11 @@ class TestBackgroundMethods(unittest.TestCase):
 
 
 class TestMain(unittest.TestCase):
+    def make_game(self, path='test_assets/assets/levels/'):
+        return Game(path=path)
 
     def test_load_game(self):
-        game = Game(path='test_assets/assets/levels/')
+        game = self.make_game()
         self.assertTrue(game)
         game.load_levels()
         last_level = 0
@@ -124,6 +126,6 @@ class TestMain(unittest.TestCase):
             surface = pygame.display.get_surface()
             self.assertNotEqual(last_level, surface.get_view().raw)
             last_level = surface.get_view().raw
-
+   
 if __name__ == '__main__':
     unittest.main()
