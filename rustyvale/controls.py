@@ -26,16 +26,12 @@ class Controls(object):
             background.xscalar = e.size[0]
             background.yscalar = e.size[1] 
          if e.type == pygame.KEYDOWN:
-            print "key down"
             key = self.reverse_data.get(e.key, False)
             if key:
-               print "character " + key
                character.key_map[key]()
          elif e.type == pygame.KEYUP:
-            print "key up"
             key = self.reverse_data.get(e.key, False)
             if key:
-               print "character stop" + key
                character.stop_direction(key)
       return self.my_game_events
 
