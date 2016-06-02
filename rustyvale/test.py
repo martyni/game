@@ -1,6 +1,7 @@
 import pygame
 import unittest
 from background import Level
+from character import Character
 from main import Game, path
 from time import sleep
 pygame.init()
@@ -24,6 +25,15 @@ block_size = current_level.scalar
 def update_delay():
     pygame.display.update()
 
+class TestCharacterMethods(unittest.TestCase):
+    def create_character(self, name):
+        return Character(name, verbose=True)
+
+    def test_draw_character(self):
+       test_char = self.create_character("draw_character")
+       test_char.save = True
+       test_char.draw_character()
+        
 
 class TestBackgroundMethods(unittest.TestCase):
 

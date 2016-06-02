@@ -33,6 +33,7 @@ class Game(object):
         self.scalar = 70
         self.screen = None
         self.controls = Controls(path=path)
+        self.game_locations = {}
 
     def load_levels(self):
         print self.path
@@ -102,8 +103,12 @@ class Game(object):
             self.load_characters()
         count = 0
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
-
+        
         while not self.game_exit:
+            try:
+               self.main_character.blocks.remove(tuple(self.main_character.position))
+            except KeyError:
+               pass
             events = pygame.event.get()
             self.last_level = self.current_level
             self.levels[self.current_level].draw_level()
@@ -125,6 +130,8 @@ class Game(object):
                 self.go_up()
             if self.main_character.position[1] > self.levels[self.current_level].block_height - 1:
                 self.go_down()
+            self.main_character.blocks.add(tuple(self.main_character.position))
+            print self.main_character.blocks
 
 def main():
    my_game = Game()

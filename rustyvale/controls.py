@@ -11,14 +11,12 @@ except ImportError:
 
 class Controls(object):
    def __init__(self, path=path):
-      self.path = path + "/assets/controls.yaml" if path != "." else "assets/controls.yaml"
+      self.path = path + "/assets/controls.yaml" if path else "assets/controls.yaml"
       self.data = load(open(self.path,"r").read())
       self.reverse_data = { self.data[key]:key for key in self.data }
          
    def get_events(self, events, screen, background, character):
       self.my_game_events = []
-      if events:
-         print events 
       for e in events:
          if e.type == pygame.QUIT:
             quit()
@@ -27,7 +25,9 @@ class Controls(object):
             background.yscalar = e.size[1] 
          if e.type == pygame.KEYDOWN:
             key = self.reverse_data.get(e.key, False)
-            if key:
+            if key in ("left","right") and character.position[0] == character.old_position[0]:
+               character.key_map[key]()
+            elif key in ("up", "down") and character.position[1] == character.old_position[1]:
                character.key_map[key]()
          elif e.type == pygame.KEYUP:
             key = self.reverse_data.get(e.key, False)
