@@ -131,7 +131,6 @@ class Game(object):
             if self.main_character.position[1] > self.levels[self.current_level].block_height - 1:
                 self.go_down()
             self.main_character.blocks.add(tuple(self.main_character.position))
-            print self.main_character.blocks
 
 def main():
    my_game = Game()

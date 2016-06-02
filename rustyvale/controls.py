@@ -25,14 +25,15 @@ class Controls(object):
             background.yscalar = e.size[1] 
          if e.type == pygame.KEYDOWN:
             key = self.reverse_data.get(e.key, False)
-            if key in ("left","right") and character.position[0] == character.old_position[0]:
+            if key in ("left","right") and character.position[0] == character.old_position[0] and not character.horizontal:
                character.key_map[key]()
-            elif key in ("up", "down") and character.position[1] == character.old_position[1]:
+            elif key in ("up", "down") and character.position[1] == character.old_position[1] and not character.vertical:
                character.key_map[key]()
          elif e.type == pygame.KEYUP:
             key = self.reverse_data.get(e.key, False)
-            if key:
+            if key == character.horizontal or key == character.vertical:
                character.stop_direction(key)
+
       return self.my_game_events
 
 

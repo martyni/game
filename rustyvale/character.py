@@ -33,6 +33,7 @@ class Character(object):
         self.name = str(name)
         self.verbose = verbose
         self.scalar = scalar
+        self.speed = 12
         self.log("Initializing character")
         self.screen = pygame.display.set_mode(
             (10 * self.scalar,  10 * self.scalar)) if not screen else screen
@@ -114,7 +115,7 @@ class Character(object):
            self.save = False
 
     def check_movement(self):
-        step = self.scalar / 25
+        step = self.scalar / self.speed
         if tuple(self.position) in self.blocks:
             self.position = list(self.old_position)
             return None
